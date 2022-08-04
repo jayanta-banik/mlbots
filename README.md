@@ -26,7 +26,7 @@ source venv3/bin/activate
 echo "installing python libraries..."
 sleep 2
 pip install --upgrade setuptools
-pip install gunicorn flask numpy pandas matplotlib flask_cors yagmail opencv-python
+pip install gunicorn flask numpy pandas matplotlib flask_cors yagmail opencv-python bcrypt pymongo
 pip install tflite-runtime
 
 echo "creating app..."
