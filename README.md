@@ -1,7 +1,5 @@
 # mlbots
-## copy the below code into a note pad and execute
-## you can also download this readme and run as sh
-### chmod +x readme.md
+## copy the below code into a note pad and execute; you can also download this readme and run as sh <br>chmod +x readme.md
 
 echo "updating linux..."
 sleep 2
@@ -31,7 +29,6 @@ pip install --upgrade setuptools
 pip install gunicorn flask numpy pandas matplotlib flask_cors yagmail opencv-python
 pip install tflite-runtime
 
-# <---------------- copy to file ---------------->
 echo "creating app..."
 sleep 2
 printf "
@@ -47,11 +44,6 @@ if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 " >> app.py
 
-# <------------- end of copy to file ------------->
-
-# python app.py
-
-# <---------------- copy to file ---------------->
 echo "creating gunicorn bridge..."
 sleep 2
 printf "
@@ -60,15 +52,9 @@ from app import app
 if __name__ == '__main__':
     app.run()
 " >> wsgi.py
-# <------------- end of copy to file ------------->
-
-# gunicorn --bind 0.0.0.0:5000 wsgi:app
 
 deactivate
 
-# sudo nano /etc/systemd/system/app.service
-
-# <---------------- copy to file ---------------->
 echo "creating service..."
 sleep 2
 sudo printf "
@@ -90,7 +76,6 @@ ExecStart=/home/pi/mlbots/venv3/bin/gunicorn --workers 3 --bind unix:app.sock -m
 
 WantedBy=multi-user.target
 " | sudo tee /etc/systemd/system/app.service
-# <------------- end of copy to file ------------->
 
 sudo systemctl start app
 sudo systemctl enable app
@@ -98,9 +83,6 @@ sleep 2
 ls
 sleep 4
 
-# sudo nano /etc/nginx/sites-available/app
-
-# <---------------- copy to file ---------------->
 echo "creating server node"
 sleep 2
 sudo printf "
@@ -115,7 +97,6 @@ location / {
 }
 " | sudo tee /etc/nginx/sites-available/app
 
-# <------------- end of copy to file ------------->
 
 sudo ln -s /etc/nginx/sites-available/app /etc/nginx/sites-enabled
 sudo rm /etc/nginx/sites-available/default
