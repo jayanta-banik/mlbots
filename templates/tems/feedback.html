@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Feedback</title>
+    <link rel="shortcut icon" href="https://resource.mlbots.in/favicon/logo.png">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://resource.mlbots.in/css/basic.css">
+    <style type="text/css">
+    .set-2 {
+        position: absolute;
+        height: 10vh;
+        width: 100vw;
+        display: inline-flex;
+        background: gray;
+    }
+
+    .caros {
+        width: 100vw;
+        height: 90vh;
+        overflow-x: None;
+    }
+
+    .w15 {
+        width: 15vw;
+        height: 100%;
+    }
+
+    .ralign {
+        text-align: right;
+    }
+
+    .num_img {
+        width: 70vw;
+    }
+
+    .hw100 {
+        width: 100%;
+        height: 100%;
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .npimg {
+        height: 60%;
+    }
+
+    .happytogether {
+        margin: None;
+        padding: None;
+    }
+
+    .faceimg {
+        filter: invert(100%);
+        width: 100vw;
+        object-fit: cover;
+        object-position: 100% 0;
+    }
+    </style>
+    <script type="text/javascript">
+    var img_n = 0;
+    var review_array = []
+    for (var i = 0; i < 58; i++) {
+        review_array[i] = 0;
+    }
+    var imgurl = "https://resource.mlbots.in/face/";
+
+    function nextImage() {
+        // body...
+        // alert("next");
+        if (img_n >= 57) {
+            alert("all complete! procced to submit")
+        } else {
+            img_n = img_n + 1;
+            document.getElementById('img_num_s').innerHTML = img_n + 1;
+            document.getElementById("face").src = imgurl + img_n + ".png";
+        }
+
+    }
+
+    function prevImage() {
+        // body...
+        // alert("prev");
+        if (img_n <= 0) {
+            // alert("all complete! procced to submit")
+        } else {
+            img_n = img_n - 1;
+            document.getElementById('img_num_s').innerHTML = img_n + 1;
+            document.getElementById("face").src = imgurl + img_n + ".png";
+        }
+    }
+
+    function submitReview() {
+
+        var x = parseInt(document.getElementById("rev").value);
+        if (x >= 1 && x <= 10) {
+            review_array[img_n] = x
+            if (img_n == 57) {
+                jsonObj = {
+                    "secret_key": "I Solemnly Swear That I Am Up To No Good",
+                    "data": review_array
+            }
+                fetch("https://pi.mlbots.in/logDarkSourceOfCode", {
+                    method: "POST",
+                    mode: 'no-cors',
+                    body: JSON.stringify(jsonObj)
+                }).then(res => {
+                    console.log("complete", res);
+                });
+            } else {
+                document.getElementById("rev").value = "";
+                nextImage();
+            }
+        } else {
+            alert("enter value between 1 - 10 only!");
+        }
+
+
+    }
+    </script>
+</head>
+
+<body>
+    <div class="set-1">
+    </div>
+    <center>
+        <div class="caros">
+            <img id="face" class="faceimg" src="https://resource.mlbots.in/face/0.png">
+            <div>
+                Review
+            </div>
+            <div>
+                &#128512;
+                <input class="" type="tel" name="" id="rev" placeholder="Enter between 1~10">
+                &#128577;
+            </div>
+        </div>
+    </center>
+    <div class="set-2">
+        <div class="w15 lalign">
+            <button type="button" class="hw100" onclick="prevImage()">
+                <img class="npimg" style="transform: rotate(180deg);" src="https://resource.mlbots.in/svg/arrow.png">
+                <div>prev</div>
+            </button>
+        </div>
+        <div id="number" class="num_img">
+            <center>
+                <span id="img_num_s" class="happytogether">1</span>
+                <span>&nbsp;/&nbsp;58</span>
+            </center>
+            <center>
+                <button type="submit" onclick="submitReview();">Submit</button>
+            </center>
+        </div>
+        <div class="w15 ralign">
+            <button type="button" class="hw100" onclick="nextImage();">
+                <img class="npimg" src="https://resource.mlbots.in/svg/arrow.png">
+                <div>next</div>
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<!-- @creator Jayanta Banik -->
+
+<head>
+    <title>ML Bots || Authentication</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="https://resource.mlbots.in/images/logo.png" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://resource.mlbots.in/css/basic.css">
+</head>
+
+<body>
+    <div class="title-my">
+        <center>
+            <h3>Machine Learning Bots</h1>
+        </center>
+    </div>
+    <!-- <hr> -->
+    <div style="padding-top: 60px;">
+        <center>
+            <div class="card border-dark mb-3" style="max-width: 18rem;">
+                <div class="card-header">Authentication Required</div>
+                <div class="card-body text-dark">
+                    <h5 class="card-title"><a href="" class="card-title text-dark">Sign up?</a></h5>
+                    <h5 class="card-title text-muted" style="cursor:default">Login</h5>
+                    <!-- <div class="card-title text-danger">
+                        Invalid credentials. Try agian.
+                    </div> -->
+                    <form method="post" action="/auth_redirect">
+                        <input type="hidden" name="fwdid" id="fwdid" value="{fwdid}" aria-hidden="true">
+                        <input type="hidden" name="trytimes" id="trytimes" value="{trytimes}" aria-hidden="true">
+                        <input type="text" name="username" id="username" required="required" placeholder="username">
+                        <p></p>
+                        <input type="password" name="password" id="password" required="required" placeholder="password">
+                        <p></p>
+                        <input class="btn btn-success" type="submit" name="Login">
+                    </form>
+                    <p></p>
+                    <a href="" class="card-text text-dark">forgot password, eh?</a>
+                </div>
+            </div>
+        </center>
+    </div>
+</body>
+
+</html>

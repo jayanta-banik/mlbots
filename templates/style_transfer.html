@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Neural Style Transfer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="https://resource.mlbots.in/favicon/logo.png">
+    <!-- <link rel="stylesheet" type="text/css" href="https://unpkg.com/@popperjs/core@2"> -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style type="text/css">
+    @import url('https://fonts.googleapis.com/css?family=Rubik&display=swap');
+
+    body {
+        /*background: linear-gradient(0deg, #fff, 50%, #DEEEFE);*/
+        font-family: 'Rubik', sans-serif;
+        /*background: #455A64;*/
+        height: 100 !important
+    }
+
+    .title-my {
+        background: linear-gradient(0deg, #fff, 50%, #455A64);
+        /*background: #455A64;*/
+        padding-top: 10px;
+        height: 12vh;
+    }
+
+    .container-fluid {
+        overflow: hidden;
+        margin-top: 250px;
+        background: #262626;
+        color: #627482 !important;
+        margin-bottom: 0;
+        padding-bottom: 0
+    }
+
+    small {
+        font-size: calc(12px + (15 - 12) * ((100vw - 360px) / (1600 - 360))) !important
+    }
+
+    .bold-text {
+        color: #989c9e !important
+    }
+
+    .mt-55 {
+        margin-top: calc(50px + (60 - 50) * ((100vw - 360px) / (1600 - 360))) !important
+    }
+
+    h3 {
+        font-size: calc(34px + (40 - 34) * ((100vw - 360px) / (1600 - 360))) !important
+    }
+
+    .social {
+        font-size: 21px !important
+    }
+
+    .rights {
+        font-size: calc(10px + (12 - 10) * ((100vw - 360px) / (1600 - 360))) !important
+    }
+
+    .card-padding {
+        padding-top: 5px;
+    }
+
+    *,
+    html {
+        margin: 0;
+    }
+
+    .cursordisabled {
+        cursor: not-allowed;
+        /*margin: 10px;*/
+
+    }
+
+    .btn-width-rponsiv {
+        width: 10rem !important;
+    }
+
+    .img-v-md {
+        vertical-align: middle;
+        object-fit: contain;
+        max-height: 256px;
+
+    }
+
+    .svg-icon {
+        max-width: 27px;
+        vertical-align: top;
+        padding-left: 5px;
+        margin-left: 4px;
+    }
+
+    .overlay_load {
+        background: rgba(255, 255, 255, 0.75);
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        top: 0;
+        left: 0;
+        position: fixed;
+    }
+
+    .GIF_POS {
+        opacity: 1;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        margin-top: 38vh;
+    }
+
+    .loading_gif {
+        width: 18vw;
+    }
+
+    .img-card {
+        height: 256px;
+    }
+    </style>
+    <script type="text/javascript">
+    function delay(time) {
+        return new Promise(resolve => setTimeout(resolve, time));
+    }
+
+    function loadPrev(filename, elem_ID) {
+        document.getElementById(elem_ID).src = "https://resource.mlbots.in/loading-gifs/loading1.gif";
+        delay(1000).then(() => {
+            document.getElementById(elem_ID).src = "https://resource.mlbots.in/" + filename;
+        });
+    }
+
+    function changeStylePrev() {
+        var x = document.getElementById('style_select').value;
+        if (x == 'CUSTOM_IMG') {
+            alert("still not working close tab")
+            document.getElementById("Style_up_btn").removeAttribute("disabled");
+            document.getElementById("Style_up_btn").removeAttribute("aria-disabled");
+            document.getElementById("Style_up_btn").setAttribute("class", "btn btn-primary btn-width-rponsiv m-1");
+
+            document.getElementById("Style_prev_btn").removeAttribute("disabled");
+            document.getElementById("Style_prev_btn").removeAttribute("aria-disabled");
+            document.getElementById("Style_prev_btn").setAttribute("class", "btn btn-info btn-width-rponsiv m-1");
+            document.getElementById("Style_prev_btn").setAttribute("onclick", "loadPrev('images/image_stock_512x512.png', 'style_prev');");
+
+            document.getElementById('style_prev').src = "https://resource.mlbots.in/images/image_stock_512x512.png";
+        } else {
+            document.getElementById('style_prev').src = "https://resource.mlbots.in/style-artwork/" + x + ".jpg";
+        }
+    }
+
+    function uploadFunc() {
+        var x = document.getElementById("file");
+        if ('files' in x) {
+            if (x.files.length == 1) {
+                var file = x.files[0];
+                if ('name' in file) {
+                    document.getElementById("customfileupload").innerHTML = "Uploading...";
+                    document.getElementById("instruction").innerHTML = "Uploading...";
+                    document.getElementById("Overlay_upload").removeAttribute("hidden");
+
+                    let formData = new FormData();
+                    formData.append("file", file);
+
+                    fetch("https://pi.mlbots.in/upload-file", {
+                            method: "POST",
+                            body: formData
+                        }).then(response => response.json())
+                        .then(res => {
+                            document.getElementById("Overlay_upload").setAttribute("hidden", "true");
+                            document.getElementById("customfileupload").innerHTML = file.name;
+                            document.getElementById("instruction").innerHTML = "Transform";
+
+                            document.getElementById("content_prev_btn").removeAttribute("disabled");
+                            document.getElementById("content_prev_btn").removeAttribute("aria-disabled");
+                            document.getElementById("content_prev_btn").setAttribute("class", "btn btn-info btn-width-rponsiv m-1");
+                            document.getElementById("content_prev_btn").setAttribute("onclick", "loadPrev('" + res.awsurl + "', 'content_prev');");
+
+                            document.getElementById("tranbtn").removeAttribute("disabled");
+                            document.getElementById("tranbtn").removeAttribute("aria-disabled");
+                            document.getElementById("tranbtn").setAttribute("class", "btn btn-warning btn-width-rponsiv m-1");
+                            document.getElementById("tranbtn").setAttribute("onclick", "transformimg('" + res.awsurl + "');");
+
+                        });
+                }
+            }
+        }
+    }
+
+    function transformimg(uri) {
+        var style = document.getElementById("style_select").value
+        if (style == "CUSTOM_IMG") {} else {
+            style = "style-artwork/" + style + ".jpg"
+        }
+        var data = {
+            "content": uri,
+            "style": style,
+            "blend_percentage": document.getElementById("blend_percentage").value
+        }
+        console.log(data)
+        document.getElementById("transform_wait").removeAttribute("hidden");
+        fetch("https://pi.mlbots.in/AI/Process/neural-style-image", {
+                method: "POST",
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+            .then(res => {
+                img_url = "https://resource.mlbots.in/" + res["awsuri"]
+                console.log(img_url)
+                document.getElementById("transform_wait").setAttribute("hidden", "true");
+
+                document.getElementById("styled_prev").src = img_url
+
+                document.getElementById("down_btn").removeAttribute("disabled");
+                document.getElementById("down_btn").removeAttribute("aria-disabled");
+                document.getElementById("down_btn").setAttribute("class", "btn btn-warning btn-width-rponsiv m-1");
+
+                document.getElementById("dfhyperlnk").setAttribute("href", img_url)
+            });
+    }
+    </script>
+</head>
+
+<body>
+    <!-- header -->
+    <div class="title-my">
+        <center>
+            <p></p>
+            <h3>Machine Learning Bots</h3>
+        </center>
+    </div>
+    <!-- body -->
+    <div>
+        <h4 class="text-muted" style="padding-left: 16px;padding-top: 60px;">Neural Sytle Transfer</h4>
+    </div>
+    <div class="container">
+        <center>
+            <h4><span id="instruction">Upload a file</span></h4>
+        </center>
+        <div class="row">
+            <div class="col-sm">
+                <center>
+                    <div class="p-4">
+                        <p id="customfileupload">No file choosen</p>
+                        <button type="button" class="btn btn-primary btn-width-rponsiv m-1" onclick="document.getElementById('file').click();">Upload
+                            <img class="svg-icon" src="https://resource.mlbots.in/svg/upload_icon.svg" alt="download icon">
+                        </button>
+                        <input type="file" name="file" id="file" onchange="uploadFunc()" hidden="true">
+                        <button type="button" class="btn btn-info disabled cursordisabled btn-width-rponsiv m-1" id="content_prev_btn" disabled="true" aria-disabled="true">Load Preview</button>
+                    </div>
+                    <div class="card col-sm img-v-md img-card">
+                        <img id="content_prev" class="card-img-top img-v-md" src="https://resource.mlbots.in/images/image_stock_512x512.png" alt="Upload image to load preview">
+                    </div>
+                </center>
+            </div>
+            <div class="col-sm">
+                <center>
+                    <div class="p-4">
+                        <!-- <div>sd</div> -->
+                        <p>
+                            <select onchange="changeStylePrev()" style="min-width: 82%;" id="style_select">
+                                <option value="style0">Style 01</option>
+                                <option value="style1">Style 02</option>
+                                <option value="style2">Style 03</option>
+                                <option value="style3">Style 04</option>
+                                <option value="style4">Style 05</option>
+                                <option value="style5">Style 06</option>
+                                <option value="style6">Style 07</option>
+                                <option value="style7">Style 08</option>
+                                <option value="style8">Style 09</option>
+                                <option value="style9">Style 10</option>
+                                <option value="style10">Style 11</option>
+                                <option value="style11">Style 12</option>
+                                <option value="style12">Style 13</option>
+                                <option value="style13">Style 14</option>
+                                <option value="style14">Style 15</option>
+                                <option value="style15">Style 16</option>
+                                <option value="style16">Style 17</option>
+                                <option value="style17">Style 18</option>
+                                <option value="style18">Style 19</option>
+                                <option value="style19">Style 20</option>
+                                <option value="style20">Style 21</option>
+                                <option value="style21">Style 22</option>
+                                <option value="style22">Style 23</option>
+                                <option value="style23">Style 24</option>
+                                <option value="style24">Style 25</option>
+                                <option value="style25">Style 26</option>
+                                <option value="style26">Style 27</option>
+                                <option value="CUSTOM_IMG">Custom</option>
+                            </select>
+                        </p>
+                        <button id="Style_up_btn" type="button" class="btn btn-primary disabled cursordisabled btn-width-rponsiv m-1" disabled="true" aria-disabled="true">Upload
+                            <img class="svg-icon" src="https://resource.mlbots.in/svg/upload_icon.svg" alt="download icon">
+                        </button>
+                        <button type="button" class="btn btn-info disabled cursordisabled btn-width-rponsiv m-1" id="Style_prev_btn" disabled="true" aria-disabled="true">Load Preview</button>
+                    </div>
+                    <div class="card col-sm img-v-md img-card">
+                        <img id="style_prev" class="card-img-top  img-v-md " src="https://resource.mlbots.in/style-artwork/style0.jpg" alt="Upload image to load preview">
+                    </div>
+                </center>
+            </div>
+            <div class="col-sm">
+                <center>
+                    <div class="p-4">
+                        <p>
+                            <input type="range" class="form-range" min="0" max="100" step="1" id="blend_percentage" onchange="document.getElementById('blend_value').innerHTML = document.getElementById('blend_percentage').value">
+                            <span id="blend_value">50</span>
+                        </p>
+                        <button id="tranbtn" type="button" class="btn btn-warning disabled cursordisabled btn-width-rponsiv m-1" disabled="true" aria-disabled="true">Transform</button>
+                        <button id="down_btn" type="button" class="btn btn-success disabled cursordisabled btn-width-rponsiv m-1" disabled="true" aria-disabled="true" onclick="document.getElementById('dfhyperlnk').click()"> Download
+                            <img class="svg-icon" src="https://resource.mlbots.in/svg/download_icon.svg" alt="download icon">
+                        </button>
+                    </div>
+                    <div class="card col-sm fixed-img">
+                        <img id="styled_prev" class="card-img-top  img-v-md " src="https://resource.mlbots.in/images/image_stock_512x512.png" alt="Upload image to load preview">
+                    </div>
+                </center>
+            </div>
+        </div>
+    </div>
+    <div class="align-middle overlay_load" id="Overlay_upload" hidden="true">
+        <div class="GIF_POS">
+            <center>
+                <img class="loading_gif" src="https://resource.mlbots.in/loading-gifs/loading10.gif">
+            </center>
+        </div>
+    </div>
+    <div class="align-middle overlay_load" id="transform_wait" hidden="true">
+        <div class="GIF_POS">
+            <center>
+                <img class="loading_gif" src="https://resource.mlbots.in/loading-gifs/loading4.gif">
+            </center>
+        </div>
+    </div>
+    <a href="" id="dfhyperlnk" target="_blank" rel="noopener noreferrer" hidden download>Download</a>
+    <!-- footer -->
+    <div class="container-fluid pb-0 mb-0 justify-content-center text-light ">
+        <footer>
+            <div class="row my-5 justify-content-center py-5">
+                <div class="col-11">
+                    <div class="row ">
+                        <div class="col-xl-8 col-md-4 col-sm-4 col-12 my-auto mx-auto a">
+                            <h3 class="text-muted mb-md-0 mb-5 bold-text">ML Bots.</h3>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-sm-4 col-12">
+                            <h6 class="mb-3 mb-lg-4 bold-text "><b>MENU</b></h6>
+                            <ul class="list-unstyled">
+                                <a href="mlbots.in/home" class="text-white">
+                                    <li>Home</li>
+                                </a>
+                                <a href="mlbots.in/about" class="text-white">
+                                    <li>About</li>
+                                </a>
+                                <a href="mlbots.in/blog" class="text-white">
+                                    <li>Blog</li>
+                                </a>
+                                <a href="mlbots.in/portfolio" class="text-white">
+                                    <li>Portfolio</li>
+                                </a>
+                            </ul>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-sm-4 col-12">
+                            <h6 class="mb-3 mb-lg-4 text-muted bold-text mt-sm-0 mt-5"><b>SUPPORT</b></h6>
+                            <p class="mb-1">Kindly contact at <a href="" class="text-light">mlprojects@gmail.com</a></p>
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <div class="col-xl-8 col-md-4 col-sm-4 col-auto my-md-0 mt-5 order-sm-1 order-3 align-self-end">
+                            <p class="social text-muted mb-0 pb-0 bold-text"> <span class="mx-2"><i class="fa fa-facebook" aria-hidden="true"></i></span> <span class="mx-2"><i class="fa fa-linkedin-square" aria-hidden="true"></i></span> <span class="mx-2"><i class="fa fa-twitter" aria-hidden="true"></i></span> <span class="mx-2"><i class="fa fa-instagram" aria-hidden="true"></i></span> </p><small class="rights"><span>&#174;</span> Mlbots.in All Rights Reserved.</small>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-sm-4 col-auto order-1 align-self-end ">
+                            <h6 class="mt-55 mt-2 text-muted bold-text"><b></b></h6><small> <span><i class="fa fa-envelope" aria-hidden="true"></i></span> </small>
+                        </div>
+                        <form method="get" action="/upload-file">
+                            <input type="file" id="file" name="file" required aria-hidden="true" hidden="true">
+                            <input type="submit" id="filesubmitbtn" name="filesubmit" aria-hidden="true" hidden="true">
+                        </form>
+                        <div class="col-xl-2 col-md-4 col-sm-4 col-auto order-2 align-self-end mt-3 ">
+                            <h6 class="text-muted bold-text"><b><a href="" class="text-muted">Credits And Contacts</a></b></h6><small><span><i class="fa fa-envelope" aria-hidden="true"></i></span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

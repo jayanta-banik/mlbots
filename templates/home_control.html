@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Home Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="https://resource.mlbots.in/images/logo.png" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style type="text/css">
+    @import url('https://fonts.googleapis.com/css?family=Rubik&display=swap');
+
+    body {
+        /*background: linear-gradient(0deg, #fff, 50%, #DEEEFE);*/
+        font-family: 'Rubik', sans-serif;
+        /*background: #455A64;*/
+        height: 100 !important
+    }
+
+    .title-my {
+        background: linear-gradient(0deg, #fff, 50%, #455A64);
+        /*background: #455A64;*/
+        padding-top: 10px;
+        height: 12vh;
+    }
+
+    .container-fluid {
+        overflow: hidden;
+        margin-top: 250px;
+        background: #262626;
+        color: #627482 !important;
+        margin-bottom: 0;
+        padding-bottom: 0
+    }
+
+    small {
+        font-size: calc(12px + (15 - 12) * ((100vw - 360px) / (1600 - 360))) !important
+    }
+
+    .bold-text {
+        color: #989c9e !important
+    }
+
+    .mt-55 {
+        margin-top: calc(50px + (60 - 50) * ((100vw - 360px) / (1600 - 360))) !important
+    }
+
+    h3 {
+        font-size: calc(34px + (40 - 34) * ((100vw - 360px) / (1600 - 360))) !important
+    }
+
+    .social {
+        font-size: 21px !important
+    }
+
+    .rights {
+        font-size: calc(10px + (12 - 10) * ((100vw - 360px) / (1600 - 360))) !important
+    }
+
+    .card-padding {
+        padding-top: 5px;
+    }
+
+    .bulb {
+        height: 25vh;
+    }
+
+    *,
+    html {
+        margin: 0;
+    }
+
+    .outlink {
+        height: 100%;
+    }
+
+    .outlink:hover,
+    .outlink:focus,
+    .outlink:active {
+        -webkit-transform: scale(0.9);
+        transform: scale(0.9);
+    }
+    </style>
+    <script type="text/javascript">
+    function toggleLamp(swtich_id) {
+        var btn_elem = document.getElementById((swtich_id + 'btn'));
+        var img_elem = document.getElementById((swtich_id + 'img'));
+        var onoff = img_elem.src.includes("bulb_off");
+        btn_elem.setAttribute("disabled", "true");
+        btn_elem.innerHTML = "<span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\">Switching...</span>";
+        var _src = "https://resource.mlbots.in/images/bulb_";
+        var jsonObj = { "setStatus": {} };
+        jsonObj.setStatus[swtich_id] = onoff ? 1101 : 1001;
+
+        // var xhr = new XMLHttpRequest();
+        // xhr.open("POST", "https://mlbots.in/status/switches", true);
+        // xhr.setRequestHeader('Content-Type', 'application/json');
+        // xhr.send(JSON.stringify(jsonObj));
+
+        fetch("https://pi.mlbots.in/IOT/switches", {
+            method: "POST",
+            body: JSON.stringify(jsonObj)
+        }).then(res => {
+            console.log("complete", "res");
+            img_elem.src = _src + (onoff ? "on" : "off") + ".png";
+            btn_elem.removeAttribute("disabled");
+            btn_elem.innerHTML = "Turn " + (onoff ? "off" : "on");
+        });
+
+    }
+
+    function getRealValues() {
+        fetch('https://pi.mlbots.in/IOT/DarkSourceOfCode/getDHT')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('tempData').value = data['temp'];
+                document.getElementById('humData').value = data['humidity'];
+                document.getElementById('tempFLData').value = data['FeelsLike'];
+
+            });
+
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var origi = JSON.parse(xhr.responseText);
+                var switches = ["TubeLight", "Fan", "GaneshLamp", "RedTableLamp"];
+                var _src = "https://resource.mlbots.in/images/bulb_";
+
+                for (var _switch of switches) {
+                    console.log(_switch)
+                    document.getElementById((_switch + 'img')).src = _src + ((origi[_switch] == 1101) ? "on" : "off") + ".png";
+                    document.getElementById(_switch + 'btn').innerHTML = 'Turn ' + ((origi[_switch] == 1001) ? "on" : "off");
+                }
+            }
+        }
+        xhr.open("GET", "https://pi.mlbots.in/IOT/DarkSourceOfCode/status?flags=[%27TubeLight%27,%27Fan%27,%27GaneshLamp%27,%27RedTableLamp%27]", true);
+        xhr.send(null);
+    };
+    </script>
+</head>
+
+<body onload="getRealValues()" style="overflow-x: hidden;">
+    <div class="title-my">
+        <center>
+            <h3>Machine Learning Bots</h3>
+        </center>
+    </div>
+    <div>
+        <!-- body -->
+        <h4 class="text-muted" style="padding-left: 16px;padding-top: 20px;">Home Control for DarkSourceOfCode</h4>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-5 card-padding">
+                    <div class="card text-center">
+                        <p></p>
+                        <h5 class="card-title">Room</h5>
+                        <div class="card-body">
+                            <p>Temperature : <output id="tempData"></output> °C</p>
+                            <p>Humidity : <output id="humData"></output> %</p>
+                            <p>Feels Like : <output id="tempFLData"></output> °C</p>
+                        </div>
+                    </div>
+                </div>
+                <div class=" col-sm-5 card-padding">
+                    <div class="card text-center outlink">
+                        <p></p>
+                        <h5 class="card-title">HexLeaf Wall <img src="https://resource.mlbots.in/images/external-link.png" style="margin-top: -5px;width: 16px;"></h5>
+                        <div class="card-body" onclick="location.href = 'https://mlbots.in/hex/DarkSourceOfCode';">
+                            <!-- <img src="https://mlaiprojects.s3.us-east-2.amazonaws.com/general+purpose/hexleafpreview.png" style="max-height:120px;"> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-5 card-padding">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <center>
+                                <img id="TubeLightimg" class="bulb" src="https://resource.mlbots.in/images/bulb_off.png" onclick="toggleLamp('TubeLight')" alt="Button will still work. Image failed to loaded.">
+                                <p></p>
+                                <p></p>
+                            </center>
+                            <h5 class="card-title">TubeLight</h5>
+                            <p class="card-text"></p>
+                            <button id="TubeLightbtn" class="btn btn-dark" type="button" onclick="toggleLamp('TubeLight')"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-5 card-padding">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <center>
+                                <img id="Fanimg" class="bulb" src="https://resource.mlbots.in/images/bulb_off.png" onclick="toggleLamp('Fan')" alt="Button will still work. Image failed to loaded.">
+                                <p></p>
+                                <p></p>
+                            </center>
+                            <h5 class="card-title">Fan</h5>
+                            <p class="card-text"></p>
+                            <button id="Fanbtn" class="btn btn-dark" onclick="toggleLamp('Fan')"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-5 card-padding">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <center>
+                                <img id="RedTableLampimg" class="bulb" src="https://resource.mlbots.in/images/bulb_off.png" onclick="toggleLamp('RedTableLamp')" alt="Button will still work. Image failed to loaded.">
+                                <p></p>
+                                <p></p>
+                            </center>
+                            <h5 class="card-title">Table Lamp</h5>
+                            <p class="card-text"></p>
+                            <button id="RedTableLampbtn" class="btn btn-dark" type="button" onclick="toggleLamp('RedTableLamp')"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-5 card-padding">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <center>
+                                <img id="GaneshLampimg" class="bulb" src="https://resource.mlbots.in/images/bulb_off.png" onclick="toggleLamp('GaneshLamp')" alt="Button will still work. Image failed to loaded.">
+                                <p></p>
+                                <p></p>
+                            </center>
+                            <h5 class="card-title">Ganesh Lamp</h5>
+                            <p class="card-text"></p>
+                            <button id="GaneshLampbtn" class="btn btn-dark" onclick="toggleLamp('GaneshLamp')"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid pb-0 mb-0 justify-content-center text-light ">
+        <footer>
+            <div class="row my-5 justify-content-center py-5">
+                <div class="col-11">
+                    <div class="row ">
+                        <div class="col-xl-8 col-md-4 col-sm-4 col-12 my-auto mx-auto a">
+                            <h3 class="text-muted mb-md-0 mb-5 bold-text">ML Bots.</h3>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-sm-4 col-12">
+                            <h6 class="mb-3 mb-lg-4 bold-text "><b>MENU</b></h6>
+                            <ul class="list-unstyled">
+                                <a href="/home" class="text-white">
+                                    <li>Home</li>
+                                </a>
+                                <a href="/about" class="text-white">
+                                    <li>About</li>
+                                </a>
+                                <a href="/blog" class="text-white">
+                                    <li>Blog</li>
+                                </a>
+                                <a href="/portfolio" class="text-white">
+                                    <li>Portfolio</li>
+                                </a>
+                                <a href="http://resource.mlbots.in" class="text-white">
+                                    <li>resource</li>
+                                </a>
+                                <a href="http://localhost.net.in/" class="text-white">
+                                    <li>localhost</li>
+                                </a>
+                            </ul>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-sm-4 col-12">
+                            <h6 class="mb-3 mb-lg-4 text-muted bold-text mt-sm-0 mt-5"><b>SUPPORT</b></h6>
+                            <p class="mb-1">Kindly contact at <a href="" class="text-light">jayantabanik.ml@gmail.com</a></p>
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <div class="col-xl-8 col-md-4 col-sm-4 col-auto my-md-0 mt-5 order-sm-1 order-3 align-self-end">
+                            <p class="social text-muted mb-0 pb-0 bold-text"> <span class="mx-2"><i class="fa fa-facebook" aria-hidden="true"></i></span> <span class="mx-2"><i class="fa fa-linkedin-square" aria-hidden="true"></i></span> <span class="mx-2"><i class="fa fa-twitter" aria-hidden="true"></i></span> <span class="mx-2"><i class="fa fa-instagram" aria-hidden="true"></i></span> </p><small class="rights"><span>&#174;</span> Mlbots.in All Rights Reserved.</small>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-sm-4 col-auto order-1 align-self-end ">
+                            <h6 class="mt-55 mt-2 text-muted bold-text"><b></b></h6><small> <span><i class="fa fa-envelope" aria-hidden="true"></i></span> </small>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-sm-4 col-auto order-2 align-self-end mt-3 ">
+                            <h6 class="text-muted bold-text"><b><a href="" class="text-muted">Credits And Contacts</a></b></h6><small><span><i class="fa fa-envelope" aria-hidden="true"></i></span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>
