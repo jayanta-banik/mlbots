@@ -1,6 +1,6 @@
 # mlbots
-## copy the below code into a note pad and execute; you can also download this readme and run as sh <br>chmod +x readme.md
-
+## copy the below code into a note pad and execute; run as sh <br>chmod +x setup.sh
+```
 echo "updating linux..."
 sleep 2
 sudo apt update -y
@@ -128,3 +128,8 @@ sleep 1
 done
 
 sudo reboot
+```
+# the code will download and setup the server. 
+# ToDo
+## setup https
+## setup secondary http server
